@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-    <!-- 头部内容保持不变 -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dragon Snake Game</title>
+    <meta name="description" content="Play the exciting Dragon Snake Game - a modern twist on the classic snake game. Control your dragon, collect candies, and achieve high scores!">
+    <meta name="keywords" content="snake game, dragon game, browser game, HTML5 game, casual game">
+    <meta name="author" content="Your Name">
+    <title>Dragon Snake Game - Fun Browser Game</title>
     <style>
         /* 样式内容保持不变 */
         body {
@@ -105,25 +107,47 @@
         <div id="welcome-screen">
             <h1 id="game-title">Dragon Snake Game</h1>
             <div id="rules">
-                <h2>游戏规则：</h2>
-                <p>1. 使用方向键或WASD控制龙的移动</p>
-                <p>2. 吃掉糖果可以获得1分并使龙变长</p>
-                <p>3. 碰到自己会导致游戏结束</p>
-                <p>4. 初始长度为3格</p>
-                <p>5. 可以穿过边界从另一侧出现</p>
+                <h2 style="text-align: left">Game Rules:</h2>
+                <p style="text-align: left">1. Use arrow keys or WASD to control the dragon</p>
+                <p style="text-align: left">2. Eat candies to score points and grow longer</p>
+                <p style="text-align: left">3. Hitting yourself ends the game</p>
+                <p style="text-align: left">4. Press the space to pause or restart the game</p>
+                <p style="text-align: left">5. You can pass through walls and appear on the other side</p>
             </div>
-            <button id="start-btn">开始游戏</button>
+            <button id="start-btn">Start Game</button>
         </div>
         <div id="game-screen">
             <div id="score-display">
-                得分: <span id="current-score">0</span><br>
-                最高分: <span id="high-score">0</span>
+                Score: <span id="current-score">0</span><br>
+                High Score: <span id="high-score">0</span>
             </div>
-            <div id="fun-message">
-                Boring at work?<br>
-                Try this fun game!<br>
-                (But don't let your boss catch you!)
+            <div id="fun-message" style="
+                font-family: 'Impact', sans-serif;
+                font-size: 24px;
+                background: #4CAF50;
+                color: white;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+                border: 3px solid #45a049;
+                border-radius: 10px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            ">
+                BORING AT WORK?<br>
+                TRY THIS FUN GAME!<br>
+                <span style="font-size: 18px; font-style: italic;">(But don't let your boss catch you! 😉)</span>
             </div>
+            <style>
+                @keyframes pulse {
+                    0% { transform: translateY(-50%) scale(1); }
+                    50% { transform: translateY(-50%) scale(1.05); }
+                    100% { transform: translateY(-50%) scale(1); }
+                }
+                #game-canvas {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                }
+            </style>
             <canvas id="game-canvas"></canvas>
         </div>
     </div>
@@ -142,6 +166,7 @@
                 this.gameLoop = null;
                 this.gridWidth = 0;
                 this.gridHeight = 0;
+                this.isPaused = false;
             }
 
             setupGame() {
@@ -185,14 +210,24 @@
             bindControls() {
                 document.addEventListener('keydown', (e) => {
                     const key = e.key.toLowerCase();
-                    if ((key === 'arrowup' || key === 'w') && this.direction !== 'down') {
-                        this.direction = 'up';
-                    } else if ((key === 'arrowdown' || key === 's') && this.direction !== 'up') {
-                        this.direction = 'down';
-                    } else if ((key === 'arrowleft' || key === 'a') && this.direction !== 'right') {
-                        this.direction = 'left';
-                    } else if ((key === 'arrowright' || key === 'd') && this.direction !== 'left') {
-                        this.direction = 'right';
+                    
+                    // 添加空格键暂停/继续功能
+                    if (key === ' ') {
+                        this.togglePause();
+                        return;
+                    }
+
+                    // 只有在游戏未暂停时才处理方向键
+                    if (!this.isPaused) {
+                        if ((key === 'arrowup' || key === 'w') && this.direction !== 'down') {
+                            this.direction = 'up';
+                        } else if ((key === 'arrowdown' || key === 's') && this.direction !== 'up') {
+                            this.direction = 'down';
+                        } else if ((key === 'arrowleft' || key === 'a') && this.direction !== 'right') {
+                            this.direction = 'left';
+                        } else if ((key === 'arrowright' || key === 'd') && this.direction !== 'left') {
+                            this.direction = 'right';
+                        }
                     }
                 });
             }
@@ -315,7 +350,7 @@
 
             gameOver() {
                 clearInterval(this.gameLoop);
-                alert(`游戏结束！\n得分：${this.score}\n最高分：${this.highScore}`);
+                alert(`Game Over!\nScore: ${this.score}\nHigh Score: ${this.highScore}`);
                 document.getElementById('game-screen').style.display = 'none';
                 document.getElementById('welcome-screen').style.display = 'block';
             }
@@ -333,6 +368,28 @@
                     this.update();
                     this.draw();
                 }, 100);
+            }
+
+            togglePause() {
+                this.isPaused = !this.isPaused;
+                if (this.isPaused) {
+                    clearInterval(this.gameLoop);
+                    // 显示暂停信息
+                    this.ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+                    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+                    this.ctx.fillStyle = '#4CAF50';
+                    this.ctx.font = '30px Arial';
+                    this.ctx.textAlign = 'center';
+                    this.ctx.fillText('PAUSED', this.canvas.width / 2, this.canvas.height / 2);
+                    this.ctx.font = '20px Arial';
+                    this.ctx.fillText('Press SPACE to continue', this.canvas.width / 2, this.canvas.height / 2 + 40);
+                } else {
+                    // 继续游戏
+                    this.gameLoop = setInterval(() => {
+                        this.update();
+                        this.draw();
+                    }, 100);
+                }
             }
         }
 
